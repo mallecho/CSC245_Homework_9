@@ -1,0 +1,130 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 1: Load stock and ETF data
+metadata = pd.read_csv('symbols_valid_meta.csv')
+
+# Example: Load stock (AAPL) and ETF (SPY) data
+stock_data = pd.read_csv('STOCKS/AAPL.csv', parse_dates=['Date'])
+etf_data = pd.read_csv('ETFS/SPY.csv', parse_dates=['Date'])
+
+# Print metadata and sample data
+print("Metadata:\n", metadata.head())
+print("\nStock Data Sample (AAPL):\n", stock_data.head())
+print("\nETF Data Sample (SPY):\n", etf_data.head())
+
+# Step 2: Compute daily and cumulative returns
+stock_data['Daily Return'] = stock_data['Adj Close'].pct_change()
+etf_data['Daily Return'] = etf_data['Adj Close'].pct_change()
+
+stock_data['Cumulative Return'] = (1 + stock_data['Daily Return']).cumprod()
+etf_data['Cumulative Return'] = (1 + etf_data['Daily Return']).cumprod()
+
+# Print computed returns
+print("\nStock Data with Returns (AAPL):\n", stock_data.head())
+print("\nETF Data with Returns (SPY):\n", etf_data.head())
+
+# Step 3: Plot stock prices and cumulative returns
+fig, ax = plt.subplots(2, 1, figsize=(10, 8))
+
+# Plot adjusted close prices
+ax[0].plot(stock_data['Date'], stock_data['Adj Close'], label='AAPL')
+ax[0].plot(etf_data['Date'], etf_data['Adj Close'], label='SPY')
+ax[0].set_title('Adjusted Close Price')
+ax[0].set_xlabel('Date')
+ax[0].set_ylabel('Price')
+ax[0].legend()
+
+# Plot cumulative returns
+ax[1].plot(stock_data['Date'], stock_data['Cumulative Return'], label='AAPL')
+ax[1].plot(etf_data['Date'], etf_data['Cumulative Return'], label='SPY')
+ax[1].set_title('Cumulative Return')
+ax[1].set_xlabel('Date')
+ax[1].set_ylabel('Cumulative Return')
+ax[1].legend()
+
+plt.tight_layout()
+plt.show()
+
+# Step 4: Compare multiple stocks using subplots
+msft_data = pd.read_csv('STOCKS/MSFT.csv', parse_dates=['Date'])
+goog_data = pd.read_csv('STOCKS/GOOG.csv', parse_dates=['Date'])
+
+for data in [msft_data, goog_data]:
+    data['Daily Return'] = data['Adj Close'].pct_change()
+    data['Cumulative Return'] = (1 + data['Daily Return']).cumprod()
+
+fig, axes = plt.subplots(3, 1, figsize=(10, 12))
+
+axes[0].plot(stock_data['Date'], stock_data['Adj Close'], label='AAPL')
+axes[0].set_title('Adjusted Close Price: AAPL')
+
+axes[1].plot(msft_data['Date'], msft_data['Adj Close'], label='MSFT', color='orange')
+axes[1].set_title('Adjusted Close Price: MSFT')
+
+axes[2].plot(goog_data['Date'], goog_data['Adj Close'], label='GOOG', color='green')
+axes[2].set_title('Adjusted Close Price: GOOG')
+
+for ax in axes:
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Price')
+    ax.legend()
+
+plt.tight_layout()
+plt.show()
+
+# Step 5: Identify and annotate peaks and drops
+# Peaks and drops for AAPL
+max_price_date = stock_data.loc[stock_data['Adj Close'].idxmax(), 'Date']
+max_price = stock_data['Adj Close'].max()
+min_price_date = stock_data.loc[stock_data['Adj Close'].idxmin(), 'Date']
+min_price = stock_data['Adj Close'].min()
+
+plt.figure(figsize=(10, 6))
+plt.plot(stock_data['Date'], stock_data['Adj Close'], label='AAPL')
+plt.title('AAPL Adjusted Close Prices with Peaks and Drops')
+plt.xlabel('Date')
+plt.ylabel('Adjusted Close Price')
+
+# Annotate peak
+plt.annotate(f'Peak: {max_price:.2f}', 
+             xy=(max_price_date, max_price), 
+             xytext=(max_price_date, max_price + 50),
+             arrowprops=dict(facecolor='green', shrink=0.05))
+
+# Annotate drop
+plt.annotate(f'Drop: {min_price:.2f}', 
+             xy=(min_price_date, min_price), 
+             xytext=(min_price_date, min_price - 50),
+             arrowprops=dict(facecolor='red', shrink=0.05))
+
+plt.legend()
+plt.show()
+
+# Peaks and drops for SPY
+max_price_date_etf = etf_data.loc[etf_data['Adj Close'].idxmax(), 'Date']
+max_price_etf = etf_data['Adj Close'].max()
+min_price_date_etf = etf_data.loc[etf_data['Adj Close'].idxmin(), 'Date']
+min_price_etf = etf_data['Adj Close'].min()
+
+plt.figure(figsize=(10, 6))
+plt.plot(etf_data['Date'], etf_data['Adj Close'], label='SPY')
+plt.title('SPY Adjusted Close Prices with Peaks and Drops')
+plt.xlabel('Date')
+plt.ylabel('Adjusted Close Price')
+
+# Annotate peak
+plt.annotate(f'Peak: {max_price_etf:.2f}', 
+             xy=(max_price_date_etf, max_price_etf), 
+             xytext=(max_price_date_etf, max_price_etf + 50),
+             arrowprops=dict(facecolor='green', shrink=0.05))
+
+# Annotate drop
+plt.annotate(f'Drop: {min_price_etf:.2f}', 
+             xy=(min_price_date_etf, min_price_etf), 
+             xytext=(min_price_date_etf, min_price_etf - 50),
+             arrowprops=dict(facecolor='red', shrink=0.05))
+
+plt.legend()
+plt.show()
