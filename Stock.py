@@ -12,7 +12,7 @@ def load_data(file_name, stocks_folder="STOCKS/"):
     file_path = os.path.join(stocks_folder, file_name)
     return pd.read_csv(file_path, parse_dates=['Date'])
 
-# Map filenames to stock symbols (based on your STOCKS folder)
+# Map filenames to stock symbols 
 symbol_file_mapping = {
     'DVN': 'DVN.csv',
     'DUOT': 'DUOT.csv',
